@@ -23,6 +23,35 @@ def add(x, y):
     return x+y
     ### END YOUR CODE
 
+def parse_idx_format(filename):
+    with gzip.open(filename, 'rb') as f:
+        file_content = f.read()
+        (header,)= struct.unpack(">i",file_content[0:4])
+
+        if header == 2051:
+            # images
+            (num_images, num_rows, num_cols,) = struct.unpack(">iii",file_content[4:16])
+            image_data = np.ones((num_images,num_rows*num_cols),dtype=np.float32)
+            idx = 16
+            for i in range(num_images):
+                for j in range(num_rows*num_cols):
+                    image_data[i][j] = file_content[idx]/255.0
+                    idx+=1
+            return image_data
+        elif header == 2049:
+            # labels
+            (num_labels,) = struct.unpack(">i",file_content[4:8])
+            labels = np.empty(num_labels,dtype=np.uint8)
+            i = 0
+            for l in file_content[8:]:
+                labels[i] = l
+                i=i+1
+            return labels
+        else:
+            # not implemented yet
+            pass
+
+        
 
 def parse_mnist(image_filename, label_filename):
     """ Read an images and labels file in MNIST format.  See this page:
@@ -48,7 +77,7 @@ def parse_mnist(image_filename, label_filename):
                 for MNIST will contain the values 0-9.
     """
     ### BEGIN YOUR CODE
-    pass
+    return (parse_idx_format(image_filename), parse_idx_format(label_filename))
     ### END YOUR CODE
 
 
