@@ -97,7 +97,7 @@ def softmax_loss(Z, y):
         Average softmax loss over the sample.
     """
     ### BEGIN YOUR CODE
-    Y = np.eye(10)[y]
+    Y = np.eye(Z.shape[1])[y]
     return np.average(np.sum(-1*np.multiply(Z,Y),axis=1) + np.log(np.sum(np.exp(Z),axis=1)))
     ### END YOUR CODE
 
