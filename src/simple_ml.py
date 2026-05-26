@@ -102,6 +102,31 @@ def softmax_loss(Z, y):
     ### END YOUR CODE
 
 
+def softmax_regression_epoch_batch(X, y, theta, lr):
+    """ Run a single epoch of SGD for softmax regression on the data, using
+    the step size lr and specified batch size.  This function should modify the
+    theta matrix in place, and you should iterate through batches in X _without_
+    randomizing the order.
+
+    Args:
+        X (np.ndarray[np.float32]): 2D input array of size
+            (batch_size x input_dim).
+        y (np.ndarray[np.uint8]): 1D class label array of size (batch_size,)
+        theta (np.ndarrray[np.float32]): 2D array of softmax regression
+            parameters, of shape (input_dim, num_classes)
+        lr (float): step size (learning rate) for SGD
+
+    Returns:
+        None
+    """
+    bs = X.shape[0]
+    k = theta.shape[1]
+    Z = np.exp(np.dot(X,theta))
+    row_sums = Z.sum(axis=1)
+    Z = Z / row_sums[:, np.newaxis]
+    Y = np.eye(k)[y]
+    theta -= lr/bs*np.dot(np.transpose(X),(Z - Y))
+
 def softmax_regression_epoch(X, y, theta, lr = 0.1, batch=100):
     """ Run a single epoch of SGD for softmax regression on the data, using
     the step size lr and specified batch size.  This function should modify the
@@ -121,7 +146,11 @@ def softmax_regression_epoch(X, y, theta, lr = 0.1, batch=100):
         None
     """
     ### BEGIN YOUR CODE
-    pass
+    num_examples = X.shape[0]
+    for b in range(0,num_examples,batch):
+        start_idx = b
+        end_idx = min(b+batch,num_examples)
+        softmax_regression_epoch_batch(X[start_idx:end_idx],y[start_idx:end_idx],theta,lr)
     ### END YOUR CODE
 
 
