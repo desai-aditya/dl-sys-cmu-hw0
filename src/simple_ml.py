@@ -153,6 +153,39 @@ def softmax_regression_epoch(X, y, theta, lr = 0.1, batch=100):
         softmax_regression_epoch_batch(X[start_idx:end_idx],y[start_idx:end_idx],theta,lr)
     ### END YOUR CODE
 
+def nn_epoch_batch(X, y, W1, W2, lr = 0.1):
+    """ Run a single epoch of SGD for a two-layer neural network defined by the
+    weights W1 and W2 (with no bias terms) for a specific batch:
+        logits = ReLU(X * W1) * W2
+    The function should use the step size lr. It should modify the
+    W1 and W2 matrices in place.
+
+    Args:
+        X (np.ndarray[np.float32]): 2D input array of size
+            (batch_size x input_dim).
+        y (np.ndarray[np.uint8]): 1D class label array of size (num_examples,)
+        W1 (np.ndarray[np.float32]): 2D array of first layer weights, of shape
+            (input_dim, hidden_dim)
+        W2 (np.ndarray[np.float32]): 2D array of second layer weights, of shape
+            (hidden_dim, num_classes)
+        lr (float): step size (learning rate) for SGD
+
+    Returns:
+        None
+    """
+    bs = X.shape[0]
+    k = W2.shape[1]
+    Z1 = np.maximum(0,np.dot(X,W1))
+    G2 = np.exp(np.dot(Z1,W2))
+    row_sums = G2.sum(axis=1)
+    G2 = G2 / row_sums[:, np.newaxis]
+    Y = np.eye(k)[y]
+    G2 = G2 - Y
+    G1 = np.multiply(np.where(Z1>0,1,0),np.dot(G2,np.transpose(W2)))
+    gradW1 = np.dot(np.transpose(X),G1)
+    gradW2 = np.dot(np.transpose(Z1),G2)
+    W2 -= lr/bs*gradW2
+    W1 -= lr/bs*gradW1
 
 def nn_epoch(X, y, W1, W2, lr = 0.1, batch=100):
     """ Run a single epoch of SGD for a two-layer neural network defined by the
@@ -177,7 +210,11 @@ def nn_epoch(X, y, W1, W2, lr = 0.1, batch=100):
         None
     """
     ### BEGIN YOUR CODE
-    pass
+    num_examples = X.shape[0]
+    for b in range(0,num_examples,batch):
+        start_idx = b
+        end_idx = min(b+batch,num_examples)
+        nn_epoch_batch(X[start_idx:end_idx],y[start_idx:end_idx],W1,W2,lr)
     ### END YOUR CODE
 
 
